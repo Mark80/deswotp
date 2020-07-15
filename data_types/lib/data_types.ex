@@ -1,0 +1,2 @@
+defmodule DataTypes do
+end
