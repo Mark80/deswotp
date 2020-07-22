@@ -1,15 +1,14 @@
 defmodule Mastery.Core.Quiz do
-  alias Mastery.Core.Template
-  alias Mastery.Core.Response
+  alias Mastery.Core.{Template, Question, Response}
   
   defstruct title: nil,
-    mastery: 3,
-    templates: %{},
-    used: [],
-    current_question: nil,
-    last_response: nil,
-    record: %{},
-    mastered: []
+            mastery: 3,
+            templates: %{ },
+            used: [ ],
+            current_question: nil,
+            last_response: nil,
+            record: %{ },
+            mastered: [ ]
 
   def new(fields) do
     struct!(__MODULE__, fields)
@@ -48,7 +47,7 @@ defmodule Mastery.Core.Quiz do
   end
 
   def mastered?(quiz) do
-    score = Map.get(quiz.record, template(quiz).name, 0)
+    score = Map.get(quiz.record, get_template(quiz).name, 0)
     score == quiz.mastery
   end
 
@@ -58,6 +57,7 @@ defmodule Mastery.Core.Quiz do
   end
 
   defp maybe_advance(quiz, false = _mastered), do: quiz
+  
   defp maybe_advance(quiz, true = _mastered), do: advance(quiz)
 
   def advance(quiz) do
@@ -68,11 +68,19 @@ defmodule Mastery.Core.Quiz do
   end
 
   defp reset_record(%{current_question: question} = quiz) do
-    Map.put(quiz, :record, Map.delete(quiz.record, question.template.name))
+    Map.put(
+      quiz,
+      :record,
+      Map.delete(quiz.record, question.template.name)
+    )
   end
 
   defp reset_used(%{current_question: question} = quiz) do
-    Map.put(quiz, :used, List.delete(quiz.used, question.template))
+    Map.put(
+      quiz,
+      :used,
+      List.delete(quiz.used, question.template)
+    )
   end
   
   defp add_to_list_or_nil(nil, template), do: [template]
@@ -104,10 +112,10 @@ defmodule Mastery.Core.Quiz do
     |> add_template_to_field(field)
   end
 
-  defp template(quiz), do: quiz.current_question.template
+  defp get_template(quiz), do: quiz.current_question.template
 
   defp remove_template_from_category(quiz) do
-    template = template(quiz)
+    template = get_template(quiz)
     new_category_templates =
       quiz.templates
       |> Map.fetch!(template.category)
@@ -124,17 +132,20 @@ defmodule Mastery.Core.Quiz do
   end
 
   defp add_template_to_field(quiz, field) do
-    template = template(quiz)
+    template = get_template(quiz)
     list = Map.get(quiz, field)
+    
     Map.put(quiz, field, [template | list])
   end
 
-  defp reset_template_cycle(%{templates: templates, used: used} = quiz) when map_size(templates) == 0 do
+  defp reset_template_cycle(%{templates: templates, used: used} = quiz)
+  when map_size(templates) == 0 do
     %__MODULE__{
       quiz | 
       templates: Enum.group_by(used, fn template -> template.category end), 
-      used: []
+      used: [ ]
     }
   end
+  
   defp reset_template_cycle(quiz), do: quiz
 end

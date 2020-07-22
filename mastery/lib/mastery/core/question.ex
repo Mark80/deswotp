@@ -3,13 +3,13 @@ defmodule Mastery.Core.Question do
   
   defstruct ~w[asked substitutions template]a
 
-  def new(%Template{} = template) do
+  def new(%Template{ } = template) do
     template.generators
     |> Enum.map(&build_substitution/1)
     |> evaluate(template)
   end
 
-  def build_substitution({name, choices_or_generator}) do
+  defp build_substitution({name, choices_or_generator}) do
     {name, choose(choices_or_generator)}
   end
 
@@ -21,17 +21,17 @@ defmodule Mastery.Core.Question do
     generator.()
   end
 
-  defp compile(template, substitutions) do
-    template.compiled
-    |> Code.eval_quoted(assigns: substitutions)
-    |> elem(0)
-  end
-
   defp evaluate(substitutions, template) do
     %__MODULE__{
       asked: compile(template, substitutions),
       substitutions: substitutions,
       template: template
     }
+  end
+  
+  defp compile(template, substitutions) do
+    template.compiled
+    |> Code.eval_quoted(assigns: substitutions)
+    |> elem(0)
   end
 end
