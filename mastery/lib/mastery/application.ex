@@ -6,13 +6,7 @@ defmodule Mastery.Application do
   use Application
 
   def start(_type, _args) do
-    children = [
-      # Starts a worker by calling: Mastery.Worker.start_link(arg)
-      # {Mastery.Worker, arg}
-    ]
-
-    # See https://hexdocs.pm/elixir/Supervisor.html
-    # for other strategies and supported options
+    children = []
     opts = [strategy: :one_for_one, name: Mastery.Supervisor]
     Supervisor.start_link(children, opts)
   end
