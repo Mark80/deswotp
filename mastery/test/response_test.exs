@@ -3,11 +3,11 @@ defmodule ResponseTest do
   use QuizBuilders
 
   describe "a right and a wrong response" do
-    setup[:right, :wrong]
+    setup [:right, :wrong]
 
     test "building responses checks answers", %{right: right, wrong: wrong} do
       assert right.correct
-      assert wrong.correct
+      assert not wrong.correct
     end
 
     test "a timestamp is added at build time", %{right: response} do
@@ -19,7 +19,7 @@ defmodule ResponseTest do
   defp quiz() do
     fields = template_fields(generators: %{left: [1], right: [2]})
 
-    build_quiz
+    build_quiz()
     |> Quiz.add_template(fields)
     |> Quiz.select_question()
   end
